@@ -1,0 +1,26 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  theme: {
+    extend: {
+      colors: {
+        // Telegram theme variables — never hardcode colors, follow the user's theme.
+        tg: {
+          bg: "var(--tg-theme-bg-color, #ffffff)",
+          secondaryBg: "var(--tg-theme-secondary-bg-color, #f1f1f1)",
+          text: "var(--tg-theme-text-color, #000000)",
+          hint: "var(--tg-theme-hint-color, #999999)",
+          link: "var(--tg-theme-link-color, #2481cc)",
+          button: "var(--tg-theme-button-color, #2481cc)",
+          buttonText: "var(--tg-theme-button-text-color, #ffffff)",
+          destructive: "var(--tg-theme-destructive-text-color, #e53935)",
+          header: "var(--tg-theme-header-bg-color, #ffffff)",
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
