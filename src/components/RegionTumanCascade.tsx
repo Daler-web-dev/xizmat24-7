@@ -74,7 +74,10 @@ function SearchableSelect({
               <button
                 key={o.id}
                 type="button"
-                onClick={() => {
+                // pointerdown (not click): registers the tap before the
+                // input blur / keyboard dismissal can swallow it in Telegram.
+                onPointerDown={(e) => {
+                  e.preventDefault();
                   onChange(o.id);
                   setOpen(false);
                   setQuery("");

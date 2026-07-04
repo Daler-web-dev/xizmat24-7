@@ -109,7 +109,12 @@ export function SubcategoryMultiSelect({ categories, subcategories, value, onCha
                   <button
                     key={s.id}
                     type="button"
-                    onClick={() => add(s.id)}
+                    // pointerdown (not click): registers the tap before the
+                    // input blur / keyboard dismissal can swallow it in Telegram.
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      add(s.id);
+                    }}
                     className="block w-full px-3 py-2 text-left text-sm active:bg-tg-secondaryBg"
                   >
                     {s.name_ru}

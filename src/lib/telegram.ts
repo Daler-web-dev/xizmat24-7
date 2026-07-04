@@ -35,6 +35,9 @@ export function initWebApp(): void {
   try {
     wa.ready();
     wa.expand?.();
+    // Stop Telegram from hijacking vertical drags (swipe-to-close), which
+    // otherwise swallows taps/scrolls on our dropdown lists. Bot API 7.7+.
+    wa.disableVerticalSwipes?.();
   } catch {
     /* no-op */
   }
