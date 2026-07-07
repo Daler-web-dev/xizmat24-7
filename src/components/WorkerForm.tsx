@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ReferenceData } from "@/actions/getReferenceData";
 import { workerInputSchema, type WorkerInput } from "@/lib/schemas";
-import { normalizePhone } from "@/lib/phone";
+import { normalizePhone, formatUzPhone } from "@/lib/phone";
 import type { ActionResult, RateType, WorkerView } from "@/types";
 import { Button, Field, inputClass } from "./ui";
 import { SubcategoryMultiSelect } from "./SubcategoryMultiSelect";
@@ -28,7 +28,7 @@ interface Props {
 
 export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Props) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [phone, setPhone] = useState(initial?.phone ?? "");
+  const [phone, setPhone] = useState(formatUzPhone(initial?.phone ?? ""));
   const [subcategoryIds, setSubcategoryIds] = useState<number[]>(initial?.subcategory_ids ?? []);
   const [regionId, setRegionId] = useState<number | null>(initial?.region_id ?? null);
   const [tumanId, setTumanId] = useState<number | null>(initial?.tuman_id ?? null);
@@ -74,7 +74,7 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
 
   async function takeContact() {
     const num = await requestContact();
-    if (num) setPhone(num);
+    if (num) setPhone(formatUzPhone(num));
   }
 
   async function doSubmit() {
@@ -153,7 +153,10 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
           <input
             className={inputClass}
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(formatUzPhone(e.target.value))}
+            onFocus={() => {
+              if (!phone) setPhone("+998");
+            }}
             placeholder="+998 90 123 45 67"
             inputMode="tel"
           />

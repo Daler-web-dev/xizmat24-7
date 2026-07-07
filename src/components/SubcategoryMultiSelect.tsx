@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Category, Subcategory } from "@/types";
-import { inputClass } from "./ui";
+import { Select } from "./ui";
 import { hapticImpact } from "@/lib/telegram";
 
 interface Props {
@@ -13,8 +13,6 @@ interface Props {
 }
 
 export function SubcategoryMultiSelect({ categories, subcategories, value, onChange }: Props) {
-  const [query, setQuery] = useState("");
-
   const categoryById = useMemo(() => {
     const m = new Map<number, Category>();
     for (const c of categories) m.set(c.id, c);
@@ -27,29 +25,24 @@ export function SubcategoryMultiSelect({ categories, subcategories, value, onCha
     return m;
   }, [subcategories]);
 
-  // Filtered + grouped by parent category, for the picker list.
+  // Subcategories grouped under their parent category, for the picker.
   const grouped = useMemo(() => {
-    const q = query.trim().toLowerCase();
     const groups = new Map<number, { category: Category; items: Subcategory[] }>();
     for (const s of subcategories) {
-      if (value.includes(s.id)) continue; // hide already-selected
       const cat = categoryById.get(s.category_id);
       if (!cat) continue;
-      const matches =
-        !q ||
-        s.name_ru.toLowerCase().includes(q) ||
-        cat.name_ru.toLowerCase().includes(q);
-      if (!matches) continue;
       if (!groups.has(cat.id)) groups.set(cat.id, { category: cat, items: [] });
       groups.get(cat.id)!.items.push(s);
     }
-    return Array.from(groups.values()).sort(
+    const arr = Array.from(groups.values()).sort(
       (a, b) => a.category.sort_order - b.category.sort_order
     );
-  }, [subcategories, value, query, categoryById]);
+    for (const g of arr) g.items.sort((a, b) => a.sort_order - b.sort_order);
+    return arr;
+  }, [subcategories, categoryById]);
 
   function add(id: number) {
-    if (value.includes(id)) return;
+    if (!id || value.includes(id)) return;
     hapticImpact("light");
     onChange([...value, id]);
   }
@@ -88,43 +81,22 @@ export function SubcategoryMultiSelect({ categories, subcategories, value, onCha
         </div>
       ) : null}
 
-      <input
-        className={inputClass}
-        placeholder="Поиск: «санте», «конди»…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-
-      {query.trim() ? (
-        <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-tg-hint/20">
-          {grouped.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-tg-hint">Ничего не найдено</div>
-          ) : (
-            grouped.map((g) => (
-              <div key={g.category.id}>
-                <div className="sticky top-0 bg-tg-secondaryBg px-3 py-1 text-xs font-semibold text-tg-hint">
-                  {g.category.name_ru}
-                </div>
-                {g.items.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    // pointerdown (not click): registers the tap before the
-                    // input blur / keyboard dismissal can swallow it in Telegram.
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      add(s.id);
-                    }}
-                    className="block w-full px-3 py-2 text-left text-sm active:bg-tg-secondaryBg"
-                  >
-                    {s.name_ru}
-                  </button>
-                ))}
-              </div>
-            ))
-          )}
-        </div>
-      ) : null}
+      {/* Native picker: pick one, it becomes a chip, select resets. Already
+          selected items are disabled so they can't be added twice. */}
+      <Select value="" empty onChange={(e) => add(Number(e.target.value))}>
+        <option value="" disabled>
+          + Добавить специальность…
+        </option>
+        {grouped.map((g) => (
+          <optgroup key={g.category.id} label={g.category.name_ru}>
+            {g.items.map((s) => (
+              <option key={s.id} value={s.id} disabled={value.includes(s.id)}>
+                {s.name_ru}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </Select>
     </div>
   );
 }

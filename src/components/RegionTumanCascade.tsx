@@ -1,98 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Region, Tuman } from "@/types";
-import { inputClass } from "./ui";
-
-interface Option {
-  id: number;
-  label: string;
-}
-
-function SearchableSelect({
-  placeholder,
-  options,
-  value,
-  onChange,
-  disabled,
-  emptyText,
-}: {
-  placeholder: string;
-  options: Option[];
-  value: number | null;
-  onChange: (id: number) => void;
-  disabled?: boolean;
-  emptyText: string;
-}) {
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-
-  const selected = useMemo(() => options.find((o) => o.id === value) ?? null, [options, value]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter((o) => o.label.toLowerCase().includes(q));
-  }, [options, query]);
-
-  if (selected && !open) {
-    return (
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => {
-          setOpen(true);
-          setQuery("");
-        }}
-        className={`${inputClass} flex items-center justify-between text-left`}
-      >
-        <span>{selected.label}</span>
-        <span className="text-tg-hint">▾</span>
-      </button>
-    );
-  }
-
-  return (
-    <div>
-      <input
-        className={inputClass}
-        placeholder={placeholder}
-        value={query}
-        disabled={disabled}
-        onFocus={() => setOpen(true)}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setOpen(true);
-        }}
-      />
-      {open ? (
-        <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-tg-hint/20">
-          {filtered.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-tg-hint">{emptyText}</div>
-          ) : (
-            filtered.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                // pointerdown (not click): registers the tap before the
-                // input blur / keyboard dismissal can swallow it in Telegram.
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  onChange(o.id);
-                  setOpen(false);
-                  setQuery("");
-                }}
-                className="block w-full px-3 py-2 text-left text-sm active:bg-tg-secondaryBg"
-              >
-                {o.label}
-              </button>
-            ))
-          )}
-        </div>
-      ) : null}
-    </div>
-  );
-}
+import { Field, Select } from "./ui";
 
 interface Props {
   regions: Region[];
@@ -111,49 +21,55 @@ export function RegionTumanCascade({
   onRegionChange,
   onTumanChange,
 }: Props) {
-  const regionOptions: Option[] = useMemo(
-    () =>
-      [...regions]
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map((r) => ({ id: r.id, label: r.name_ru })),
+  const regionOptions = useMemo(
+    () => [...regions].sort((a, b) => a.sort_order - b.sort_order),
     [regions]
   );
 
-  const tumanOptions: Option[] = useMemo(
+  const tumanOptions = useMemo(
     () =>
       tumans
         .filter((t) => t.region_id === regionId)
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map((t) => ({ id: t.id, label: t.name_ru })),
+        .sort((a, b) => a.sort_order - b.sort_order),
     [tumans, regionId]
   );
 
   return (
     <div className="space-y-3">
-      <div>
-        <span className="mb-1 block text-sm font-medium">Регион</span>
-        <SearchableSelect
-          placeholder="Выберите регион"
-          options={regionOptions}
-          value={regionId}
-          emptyText="Регион не найден"
-          onChange={(id) => {
-            onRegionChange(id); // parent resets tuman on region change
-          }}
-        />
-      </div>
+      <Field label="Регион">
+        <Select
+          value={regionId ? String(regionId) : ""}
+          empty={!regionId}
+          onChange={(e) => onRegionChange(Number(e.target.value))}
+        >
+          <option value="" disabled>
+            Выберите регион
+          </option>
+          {regionOptions.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name_ru}
+            </option>
+          ))}
+        </Select>
+      </Field>
 
-      <div>
-        <span className="mb-1 block text-sm font-medium">Туман / район</span>
-        <SearchableSelect
-          placeholder={regionId ? "Выберите туман" : "Сначала выберите регион"}
-          options={tumanOptions}
-          value={tumanId}
+      <Field label="Туман / район">
+        <Select
+          value={tumanId ? String(tumanId) : ""}
+          empty={!tumanId}
           disabled={!regionId}
-          emptyText={regionId ? "Туман не найден (проверьте справочник)" : "Сначала регион"}
-          onChange={onTumanChange}
-        />
-      </div>
+          onChange={(e) => onTumanChange(Number(e.target.value))}
+        >
+          <option value="" disabled>
+            {regionId ? "Выберите туман" : "Сначала выберите регион"}
+          </option>
+          {tumanOptions.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name_ru}
+            </option>
+          ))}
+        </Select>
+      </Field>
     </div>
   );
 }

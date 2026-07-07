@@ -1,6 +1,6 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
 
 export function Spinner({ label }: { label?: string }) {
   return (
@@ -88,3 +88,31 @@ export function Field({
 
 export const inputClass =
   "w-full rounded-xl border border-tg-hint/20 bg-tg-secondaryBg px-3 py-3 text-base outline-none focus:border-tg-link";
+
+/**
+ * Native <select> — the OS picker. Scrolls and taps reliably inside Telegram
+ * (no hand-rolled dropdown jank). `placeholder` shows as a disabled first
+ * option; `empty` renders when the placeholder is selected (grey text).
+ */
+export function Select({
+  className = "",
+  empty,
+  children,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement> & { empty?: boolean }) {
+  return (
+    <div className="relative">
+      <select
+        className={`${inputClass} appearance-none pr-9 disabled:opacity-50 ${
+          empty ? "text-tg-hint" : ""
+        } ${className}`}
+        {...rest}
+      >
+        {children}
+      </select>
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-tg-hint">
+        ▾
+      </span>
+    </div>
+  );
+}
