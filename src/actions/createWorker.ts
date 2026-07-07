@@ -59,6 +59,8 @@ export async function createWorker(
     p_rate_type: data.rateType ?? null,
     p_added_by: auth.user.id,
     p_subcategory_ids: data.subcategoryIds,
+    p_birth_year: data.birthYear ?? null,
+    p_gender: data.gender ?? null,
   });
 
   if (rpc.error) {

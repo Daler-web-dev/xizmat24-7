@@ -9,6 +9,24 @@ const RATE_TYPE_LABEL: Record<string, string> = {
   hour: "час",
 };
 
+const GENDER_LABEL: Record<string, string> = {
+  male: "Мужской",
+  female: "Женский",
+};
+
+/** "23 года", "21 год", "35 лет" — Russian age pluralization. */
+function ageLabel(birthYear: number): string {
+  const age = new Date().getFullYear() - birthYear;
+  const t = age % 100;
+  const d = age % 10;
+  let word = "лет";
+  if (t < 11 || t > 14) {
+    if (d === 1) word = "год";
+    else if (d >= 2 && d <= 4) word = "года";
+  }
+  return `${age} ${word}`;
+}
+
 /** Compact row for the home list. */
 export function WorkerListItem({ worker }: { worker: WorkerView }) {
   const place = [worker.region_name, worker.tuman_name].filter(Boolean).join(", ");
@@ -50,6 +68,13 @@ export function WorkerCard({ worker }: { worker: WorkerView }) {
 
       <div className="space-y-2 rounded-xl bg-tg-secondaryBg p-4 text-sm">
         <Row label="Специальности" value={worker.subcategory_names.join(", ") || "—"} />
+        <Row label="Пол" value={worker.gender ? GENDER_LABEL[worker.gender] : "—"} />
+        <Row
+          label="Возраст"
+          value={
+            worker.birth_year != null ? `${ageLabel(worker.birth_year)} (${worker.birth_year})` : "—"
+          }
+        />
         <Row label="Регион" value={worker.region_name ?? "—"} />
         <Row label="Туман" value={worker.tuman_name ?? "—"} />
         <Row label="Ставка" value={rate} />

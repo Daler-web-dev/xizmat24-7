@@ -31,6 +31,8 @@ export function mapWorkerView(row: WorkerRow): WorkerView {
     id: row.id as string,
     name: row.name as string,
     phone: row.phone as string,
+    birth_year: (row.birth_year as number | null) ?? null,
+    gender: (row.gender as WorkerView["gender"]) ?? null,
     region_id: (row.region_id as number | null) ?? null,
     tuman_id: (row.tuman_id as number | null) ?? null,
     rate: (row.rate as number | null) ?? null,

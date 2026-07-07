@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { ReferenceData } from "@/actions/getReferenceData";
 import { workerInputSchema, type WorkerInput } from "@/lib/schemas";
 import { normalizePhone, formatUzPhone } from "@/lib/phone";
-import type { ActionResult, RateType, WorkerView } from "@/types";
+import type { ActionResult, Gender, RateType, WorkerView } from "@/types";
 import { Button, Field, inputClass } from "./ui";
 import { SubcategoryMultiSelect } from "./SubcategoryMultiSelect";
 import { RegionTumanCascade } from "./RegionTumanCascade";
@@ -14,6 +14,11 @@ const RATE_TYPES: { value: RateType; label: string }[] = [
   { value: "day", label: "День" },
   { value: "task", label: "Задача" },
   { value: "hour", label: "Час" },
+];
+
+const GENDERS: { value: Gender; label: string }[] = [
+  { value: "male", label: "Мужской" },
+  { value: "female", label: "Женский" },
 ];
 
 interface Props {
@@ -29,6 +34,10 @@ interface Props {
 export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Props) {
   const [name, setName] = useState(initial?.name ?? "");
   const [phone, setPhone] = useState(formatUzPhone(initial?.phone ?? ""));
+  const [birthYear, setBirthYear] = useState<string>(
+    initial?.birth_year != null ? String(initial.birth_year) : ""
+  );
+  const [gender, setGender] = useState<Gender | null>(initial?.gender ?? null);
   const [subcategoryIds, setSubcategoryIds] = useState<number[]>(initial?.subcategory_ids ?? []);
   const [regionId, setRegionId] = useState<number | null>(initial?.region_id ?? null);
   const [tumanId, setTumanId] = useState<number | null>(initial?.tuman_id ?? null);
@@ -43,6 +52,8 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
     return {
       name: name.trim(),
       phone: phone.trim(),
+      birthYear: birthYear.trim() ? Number(birthYear) : null,
+      gender,
       subcategoryIds,
       regionId: regionId ?? 0,
       tumanId: tumanId ?? 0,
@@ -109,8 +120,11 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
       rate.trim() && rateType
         ? `${rate} / ${RATE_TYPES.find((r) => r.value === rateType)?.label}`
         : "—";
-    return { subNames, regionName, tumanName, phonePreview, rateLabel };
-  }, [subcategoryIds, regionId, tumanId, phone, rate, rateType, refs]);
+    const genderLabel = gender ? GENDERS.find((g) => g.value === gender)?.label ?? "—" : "—";
+    const yr = birthYear.trim() ? Number(birthYear) : null;
+    const ageLabel = yr ? `${new Date().getFullYear() - yr} (${yr})` : "—";
+    return { subNames, regionName, tumanName, phonePreview, rateLabel, genderLabel, ageLabel };
+  }, [subcategoryIds, regionId, tumanId, phone, rate, rateType, gender, birthYear, refs]);
 
   if (confirming) {
     return (
@@ -119,6 +133,8 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
         <div className="space-y-2 rounded-xl bg-tg-secondaryBg p-4 text-sm">
           <Row label="Имя" value={name.trim()} />
           <Row label="Телефон" value={summary.phonePreview} />
+          <Row label="Пол" value={summary.genderLabel} />
+          <Row label="Возраст (год)" value={summary.ageLabel} />
           <Row label="Специальности" value={summary.subNames.join(", ")} />
           <Row label="Регион" value={summary.regionName} />
           <Row label="Туман" value={summary.tumanName} />
@@ -163,6 +179,35 @@ export function WorkerForm({ refs, initial, submitLabel, onSubmit, onDone }: Pro
           <Button type="button" variant="secondary" onClick={takeContact} className="shrink-0">
             Мой контакт
           </Button>
+        </div>
+      </Field>
+
+      <Field label="Год рождения" hint="Опционально. Возраст посчитается сам.">
+        <input
+          className={inputClass}
+          value={birthYear}
+          onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, "").slice(0, 4))}
+          placeholder="Например, 1990"
+          inputMode="numeric"
+        />
+      </Field>
+
+      <Field label="Пол" hint="Опционально.">
+        <div className="flex gap-2">
+          {GENDERS.map((g) => (
+            <button
+              key={g.value}
+              type="button"
+              onClick={() => setGender(gender === g.value ? null : g.value)}
+              className={`flex-1 rounded-xl px-3 py-2 text-sm ${
+                gender === g.value
+                  ? "bg-tg-button text-tg-buttonText"
+                  : "bg-tg-secondaryBg text-tg-text"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
         </div>
       </Field>
 

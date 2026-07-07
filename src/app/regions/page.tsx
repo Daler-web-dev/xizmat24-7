@@ -160,11 +160,11 @@ function AddRegionForm({
   return (
     <div className="space-y-3 rounded-xl bg-tg-secondaryBg p-4">
       <h2 className="text-sm font-semibold">Новый город / регион</h2>
-      <Field label="Название (RU)">
-        <input className={inputClass} value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="г. Ташкент" />
-      </Field>
-      <Field label="Nomi (UZ)">
+      <Field label="Nomi (UZ)" hint="Обязательно. Пишите на узбекском.">
         <input className={inputClass} value={nameUz} onChange={(e) => setNameUz(e.target.value)} placeholder="Toshkent shahri" />
+      </Field>
+      <Field label="Название (RU)" hint="Необязательно. Если пусто — возьмём узбекское.">
+        <input className={inputClass} value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="г. Ташкент" />
       </Field>
       {err ? <p className="text-sm text-tg-destructive">{err}</p> : null}
       <div className="flex gap-2">
@@ -263,11 +263,11 @@ function TumanManager({
       {/* Add tuman */}
       <div className="space-y-3 rounded-xl bg-tg-secondaryBg p-4">
         <h2 className="text-sm font-semibold">Добавить туман / район</h2>
-        <Field label="Название (RU)">
-          <input className={inputClass} value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Юнусабадский район" />
-        </Field>
-        <Field label="Nomi (UZ)">
+        <Field label="Nomi (UZ)" hint="Обязательно. Пишите на узбекском.">
           <input className={inputClass} value={nameUz} onChange={(e) => setNameUz(e.target.value)} placeholder="Yunusobod tumani" />
+        </Field>
+        <Field label="Название (RU)" hint="Необязательно. Если пусто — возьмём узбекское.">
+          <input className={inputClass} value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Юнусабадский район" />
         </Field>
         {formErr ? <p className="text-sm text-tg-destructive">{formErr}</p> : null}
         <Button block onClick={add} disabled={busy}>

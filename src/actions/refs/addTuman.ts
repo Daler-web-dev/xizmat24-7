@@ -36,12 +36,16 @@ export async function addTuman(
     .maybeSingle();
   const nextSort = (max.data?.sort_order ?? 0) + 1;
 
+  // RU is optional — fall back to the UZ name when the admin left it blank.
+  const nameUz = data.name_uz.trim();
+  const nameRu = data.name_ru.trim() || nameUz;
+
   const res = await supabase
     .from("tumans")
     .insert({
       region_id: data.regionId,
-      name_ru: data.name_ru.trim(),
-      name_uz: data.name_uz.trim(),
+      name_ru: nameRu,
+      name_uz: nameUz,
       sort_order: nextSort,
     })
     .select("*")

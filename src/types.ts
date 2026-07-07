@@ -2,6 +2,7 @@
 
 export type RateType = "day" | "task" | "hour";
 export type WorkerStatus = "seeded" | "active";
+export type Gender = "male" | "female";
 
 export interface Region {
   id: number;
@@ -42,6 +43,8 @@ export interface Worker {
   id: string;
   name: string;
   phone: string;
+  birth_year: number | null;
+  gender: Gender | null;
   region_id: number | null;
   tuman_id: number | null;
   rate: number | null;

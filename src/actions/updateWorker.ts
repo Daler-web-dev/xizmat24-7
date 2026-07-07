@@ -47,6 +47,8 @@ export async function updateWorker(
     p_rate: data.rate ?? null,
     p_rate_type: data.rateType ?? null,
     p_subcategory_ids: data.subcategoryIds,
+    p_birth_year: data.birthYear ?? null,
+    p_gender: data.gender ?? null,
   });
 
   if (rpc.error) {

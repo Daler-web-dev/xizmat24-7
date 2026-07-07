@@ -55,6 +55,8 @@ create table if not exists workers (
   -- Entered by the Mini App (minimum during the seeding phase):
   name          text not null,
   phone         text not null unique,          -- strictly +998XXXXXXXXX, FUTURE LOGIN
+  birth_year    int  check (birth_year is null or birth_year between 1900 and 2100),
+  gender        text check (gender is null or gender in ('male','female')),
   region_id     int  references regions(id) on delete set null,
   tuman_id      int  references tumans(id)  on delete set null,
   rate          numeric,
@@ -131,7 +133,9 @@ create or replace function create_worker_with_subcategories(
   p_rate           numeric,
   p_rate_type      text,
   p_added_by       bigint,
-  p_subcategory_ids int[]
+  p_subcategory_ids int[],
+  p_birth_year     int  default null,
+  p_gender         text default null
 ) returns uuid
 language plpgsql
 as $$
@@ -139,8 +143,8 @@ declare
   v_id  uuid;
   v_sub int;
 begin
-  insert into workers (name, phone, region_id, tuman_id, rate, rate_type, added_by)
-  values (p_name, p_phone, p_region_id, p_tuman_id, p_rate, p_rate_type, p_added_by)
+  insert into workers (name, phone, birth_year, gender, region_id, tuman_id, rate, rate_type, added_by)
+  values (p_name, p_phone, p_birth_year, p_gender, p_region_id, p_tuman_id, p_rate, p_rate_type, p_added_by)
   returning id into v_id;
 
   foreach v_sub in array p_subcategory_ids loop
@@ -160,7 +164,9 @@ create or replace function update_worker_with_subcategories(
   p_tuman_id       int,
   p_rate           numeric,
   p_rate_type      text,
-  p_subcategory_ids int[]
+  p_subcategory_ids int[],
+  p_birth_year     int  default null,
+  p_gender         text default null
 ) returns uuid
 language plpgsql
 as $$
@@ -170,6 +176,8 @@ begin
   update workers
      set name = p_name,
          phone = p_phone,
+         birth_year = p_birth_year,
+         gender = p_gender,
          region_id = p_region_id,
          tuman_id = p_tuman_id,
          rate = p_rate,

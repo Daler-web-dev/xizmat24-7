@@ -60,6 +60,14 @@ npm run dev
 2. `supabase/seed/01_categories.sql` — 10 категорий + подкатегории.
 3. `supabase/seed/02_regions.sql` — 14 регионов Узбекистана.
 4. `supabase/seed/03_tumans.sql` — туманы (районы).
+5. `supabase/seed/04_services_uz.sql` — узбекские названия услуг (name_uz).
+
+Для уже развёрнутой БД инкрементальные изменения лежат отдельно и
+собраны в один файл для разового прогона:
+
+- `supabase/migrations/0002_worker_birth_gender.sql` — поля `birth_year`,
+  `gender` у `workers` + обновлённые RPC.
+- `supabase/apply_update_002.sql` — 0002 + `04_services_uz.sql` одним файлом.
 
 Все сиды идемпотентны (`on conflict do nothing`) — повторный запуск безопасен.
 
