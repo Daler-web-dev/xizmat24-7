@@ -89,7 +89,7 @@ export default function HomePage() {
 
       <input
         className={inputClass}
-        placeholder="Поиск по имени или телефону"
+        placeholder="Поиск: имя, телефон, услуга"
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
       />
